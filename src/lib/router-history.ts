@@ -4,13 +4,34 @@ export type HistoryAdapterOptions = {
   base?: string; // e.g. "/app"
   useHash?: boolean; // if true, use location.hash for routing
   // Prefer path-specific helpers; legacy names kept for compatibility
-  matchPath?: (path: string) => Promise<Record<string, unknown> | null> | (Record<string, unknown> | null);
+  matchPath?: (
+    path: string
+  ) =>
+    | Promise<Record<string, unknown> | null>
+    | (Record<string, unknown> | null);
   matchAllPaths?: (path: string) => any[] | null;
-  match?: (path: string) => Promise<Record<string, unknown> | null> | (Record<string, unknown> | null);
+  match?: (
+    path: string
+  ) =>
+    | Promise<Record<string, unknown> | null>
+    | (Record<string, unknown> | null);
   // Guard: return true to allow, or a string path to redirect (receives rich ctx)
-  guard?: (ctx: { fullPath: string; path: string; params: Record<string, unknown> | null; route: any | null; chain?: any[] }) => Promise<true | string> | (true | string);
+  guard?: (ctx: {
+    fullPath: string;
+    path: string;
+    params: Record<string, unknown> | null;
+    route: any | null;
+    chain?: any[];
+  }) => Promise<true | string> | (true | string);
   // Loader: may return extra params to merge into route params (receives rich ctx)
-  loader?: (ctx: { path: string; params: Record<string, unknown> | null; route: any | null; chain?: any[] }) => Promise<Record<string, unknown> | void> | (Record<string, unknown> | void);
+  loader?: (ctx: {
+    path: string;
+    params: Record<string, unknown> | null;
+    route: any | null;
+    chain?: any[];
+  }) =>
+    | Promise<Record<string, unknown> | void>
+    | (Record<string, unknown> | void);
   matchRoute?: (path: string) => any | null;
   matchRouteByPath?: (path: string) => any | null;
   // Optional: return parent→child chain of route instances for nesting
@@ -19,22 +40,36 @@ export type HistoryAdapterOptions = {
 
 function normalize(path: string, base = "") {
   const p = path.startsWith("/") ? path : `/${path}`;
-  if (!base) return p;
+  if (!base) {
+    return p;
+  }
   return p.startsWith(base) ? p.slice(base.length) || "/" : p;
 }
 
-function toUrl(path: string, { base = "", useHash = false }: { base?: string; useHash?: boolean }) {
-  if (useHash) return `${base || ""}#${path}`;
+function toUrl(
+  path: string,
+  { base = "", useHash = false }: { base?: string; useHash?: boolean }
+) {
+  if (useHash) {
+    return `${base || ""}#${path}`;
+  }
   return `${base || ""}${path}`;
 }
 
-function getPathFromLocation({ base = "", useHash = false }: { base?: string; useHash?: boolean }) {
+function getPathFromLocation({
+  base = "",
+  useHash = false,
+}: {
+  base?: string;
+  useHash?: boolean;
+}) {
   if (useHash) {
     const hash = window.location.hash || "#";
     const raw = hash.slice(1) || "/";
     return normalize(raw, "");
   }
-  const raw = window.location.pathname + window.location.search + window.location.hash;
+  const raw =
+    window.location.pathname + window.location.search + window.location.hash;
   return normalize(raw, base);
 }
 
@@ -42,20 +77,49 @@ function stripQueryHash(path: string) {
   const idxQ = path.indexOf("?");
   const idxH = path.indexOf("#");
   let end = path.length;
-  if (idxQ !== -1) end = Math.min(end, idxQ);
-  if (idxH !== -1) end = Math.min(end, idxH);
+  if (idxQ !== -1) {
+    end = Math.min(end, idxQ);
+  }
+  if (idxH !== -1) {
+    end = Math.min(end, idxH);
+  }
   return path.slice(0, end) || "/";
 }
 
-export function createBrowserHistoryAdapter(store: RouterStore, opts: HistoryAdapterOptions) {
-  const { base = "", useHash = false, guard, loader, matchRoute, matchRouteByPath, matchAllRoutes } = opts;
-  const matchParams = (path: string) => (opts.matchPath ? opts.matchPath(path) : opts.match!(path));
-  const matchChain = (path: string) => (opts.matchAllPaths ? opts.matchAllPaths(path) : (matchAllRoutes ? matchAllRoutes(path) : null));
+export function createBrowserHistoryAdapter(
+  store: RouterStore,
+  opts: HistoryAdapterOptions
+) {
+  const {
+    base = "",
+    useHash = false,
+    guard,
+    loader,
+    matchRoute,
+    matchRouteByPath,
+    matchAllRoutes,
+  } = opts;
+  const matchParams = (path: string) =>
+    opts.matchPath ? opts.matchPath(path) : opts.match!(path);
+  const matchChain = (path: string) =>
+    opts.matchAllPaths
+      ? opts.matchAllPaths(path)
+      : matchAllRoutes
+        ? matchAllRoutes(path)
+        : null;
   // Maintain a stable session index similar to React Router's history
   function ensureStateIndex() {
     const st: any = window.history.state || {};
-    if (typeof st.__vtIdx !== 'number') {
-      try { window.history.replaceState({ ...st, __vtIdx: 0 }, "", window.location.href); } catch {}
+    if (typeof st.__vtIdx !== "number") {
+      try {
+        window.history.replaceState(
+          { ...st, __vtIdx: 0 },
+          "",
+          window.location.href
+        );
+      } catch {
+        // ignore
+      }
       return 0;
     }
     return st.__vtIdx as number;
@@ -70,8 +134,14 @@ export function createBrowserHistoryAdapter(store: RouterStore, opts: HistoryAda
         const params = await matchParams(path);
         const routeMatcher = matchRouteByPath ?? matchRoute;
         const route = routeMatcher ? routeMatcher(path) : null;
-        const chain = (matchChain(path) || (route ? [route] : []));
-        const allowOrRedirect = await guard({ fullPath: rawPath, path, params, route, chain });
+        const chain = matchChain(path) || (route ? [route] : []);
+        const allowOrRedirect = await guard({
+          fullPath: rawPath,
+          path,
+          params,
+          route,
+          chain,
+        });
         if (typeof allowOrRedirect === "string") {
           apply("redirect", normalize(allowOrRedirect, ""));
           return false;
@@ -81,7 +151,7 @@ export function createBrowserHistoryAdapter(store: RouterStore, opts: HistoryAda
         const path = stripQueryHash(pathFull);
         const routeMatcher = matchRouteByPath ?? matchRoute;
         const route = routeMatcher ? routeMatcher(path) : null;
-        const chain = (matchChain(path) || (route ? [route] : []));
+        const chain = matchChain(path) || (route ? [route] : []);
         await loader({ path, params: await matchParams(path), route, chain });
       }
     } catch {
@@ -91,7 +161,10 @@ export function createBrowserHistoryAdapter(store: RouterStore, opts: HistoryAda
   }
 
   function generateKey() {
-    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    if (
+      typeof crypto !== "undefined" &&
+      typeof crypto.randomUUID === "function"
+    ) {
       return crypto.randomUUID();
     }
     return Math.random().toString(36).slice(2);
@@ -100,13 +173,22 @@ export function createBrowserHistoryAdapter(store: RouterStore, opts: HistoryAda
   function apply(mode: "push" | "replace" | "redirect", path: string) {
     const url = toUrl(path, { base, useHash });
     const st: any = window.history.state || {};
-    const curr = typeof st.__vtIdx === 'number' ? st.__vtIdx : ensureStateIndex();
+    const curr =
+      typeof st.__vtIdx === "number" ? st.__vtIdx : ensureStateIndex();
     const nextIdx = mode === "push" ? curr + 1 : curr;
     const state = { ...st, key: generateKey(), __vtIdx: nextIdx };
     if (mode === "push") {
-      try { window.history.pushState(state, "", url); } catch {}
+      try {
+        window.history.pushState(state, "", url);
+      } catch {
+        // ignore
+      }
     } else {
-      try { window.history.replaceState(state, "", url); } catch {}
+      try {
+        window.history.replaceState(state, "", url);
+      } catch {
+        // ignore
+      }
     }
     store.dispatch(mode, path);
     void maybeGuardAndLoad(path);

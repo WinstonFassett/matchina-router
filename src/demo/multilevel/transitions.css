@@ -1,11 +1,13 @@
 /* SWUP-style parallel transitions aligned with SlideViewer */
 /* Default duration variable (can be overridden by demo controls) */
-:root { --vt-duration: 4000ms; }
+:root {
+  --vt-duration: 4000ms;
+}
 
 /* Scope container uses grid to prevent collapse while overlapping */
 [data-vt-dir] {
   display: grid;
-  grid-template-areas: 'stack';
+  grid-template-areas: "stack";
   overflow: hidden;
   /* Ensure nested viewers are isolated stacking/clip contexts */
   isolation: isolate;
@@ -16,7 +18,12 @@
   grid-area: stack;
   position: relative;
   /* Hint the compositor for smoother shape/mask animations */
-  will-change: transform, opacity, clip-path, -webkit-mask-position, mask-position;
+  will-change:
+    transform,
+    opacity,
+    clip-path,
+    -webkit-mask-position,
+    mask-position;
   /* Constrain reveals to each layer's box */
   overflow: hidden;
   contain: paint;
@@ -26,8 +33,13 @@
 }
 
 /* Layering */
-.vt-scope.is-next-container { z-index: 2; }
-.vt-scope.is-previous-container { z-index: 1; pointer-events: none; }
+.vt-scope.is-next-container {
+  z-index: 2;
+}
+.vt-scope.is-previous-container {
+  z-index: 1;
+  pointer-events: none;
+}
 
 /*
   Mode: slide (short shift with fade)
@@ -35,10 +47,22 @@
   - Exiting layer: short travel (~10%) toward the outgoing side AND fades out
   - Purpose: subtle content swap inside a persistent shell (e.g., tabs)
 */
-[data-vt-changing][data-vt-mode="slide"][data-vt-dir="forward"] > .vt-scope.is-next-container { animation: vt-slide-in-left var(--vt-duration, 320ms) ease both; }
-[data-vt-changing][data-vt-mode="slide"][data-vt-dir="forward"] > .vt-scope.is-previous-container { animation: vt-slide-out-left var(--vt-duration, 320ms) ease both; }
-[data-vt-changing][data-vt-mode="slide"][data-vt-dir="back"] > .vt-scope.is-next-container { animation: vt-slide-in-right var(--vt-duration, 320ms) ease both; }
-[data-vt-changing][data-vt-mode="slide"][data-vt-dir="back"] > .vt-scope.is-previous-container { animation: vt-slide-out-right var(--vt-duration, 320ms) ease both; }
+[data-vt-changing][data-vt-mode="slide"][data-vt-dir="forward"]
+  > .vt-scope.is-next-container {
+  animation: vt-slide-in-left var(--vt-duration, 320ms) ease both;
+}
+[data-vt-changing][data-vt-mode="slide"][data-vt-dir="forward"]
+  > .vt-scope.is-previous-container {
+  animation: vt-slide-out-left var(--vt-duration, 320ms) ease both;
+}
+[data-vt-changing][data-vt-mode="slide"][data-vt-dir="back"]
+  > .vt-scope.is-next-container {
+  animation: vt-slide-in-right var(--vt-duration, 320ms) ease both;
+}
+[data-vt-changing][data-vt-mode="slide"][data-vt-dir="back"]
+  > .vt-scope.is-previous-container {
+  animation: vt-slide-out-right var(--vt-duration, 320ms) ease both;
+}
 
 /*
   Mode: slideshow (full slide, no fade)
@@ -46,26 +70,113 @@
   - Exiting layer: travels full viewport without opacity change
   - Purpose: page-level route transitions between distinct screens
 */
-[data-vt-changing][data-vt-mode="slideshow"][data-vt-dir="forward"] > .vt-scope.is-next-container { animation: vt-ss-in-left var(--vt-duration, 320ms) ease both; }
-[data-vt-changing][data-vt-mode="slideshow"][data-vt-dir="forward"] > .vt-scope.is-previous-container { animation: vt-ss-out-left var(--vt-duration, 320ms) ease both; }
-[data-vt-changing][data-vt-mode="slideshow"][data-vt-dir="back"] > .vt-scope.is-next-container { animation: vt-ss-in-right var(--vt-duration, 320ms) ease both; }
-[data-vt-changing][data-vt-mode="slideshow"][data-vt-dir="back"] > .vt-scope.is-previous-container { animation: vt-ss-out-right var(--vt-duration, 320ms) ease both; }
+[data-vt-changing][data-vt-mode="slideshow"][data-vt-dir="forward"]
+  > .vt-scope.is-next-container {
+  animation: vt-ss-in-left var(--vt-duration, 320ms) ease both;
+}
+[data-vt-changing][data-vt-mode="slideshow"][data-vt-dir="forward"]
+  > .vt-scope.is-previous-container {
+  animation: vt-ss-out-left var(--vt-duration, 320ms) ease both;
+}
+[data-vt-changing][data-vt-mode="slideshow"][data-vt-dir="back"]
+  > .vt-scope.is-next-container {
+  animation: vt-ss-in-right var(--vt-duration, 320ms) ease both;
+}
+[data-vt-changing][data-vt-mode="slideshow"][data-vt-dir="back"]
+  > .vt-scope.is-previous-container {
+  animation: vt-ss-out-right var(--vt-duration, 320ms) ease both;
+}
 
 /* Optional: removing previous after keep>0 */
-.vt-scope.is-removing-container { animation: vt-slide-far-left 240ms ease both; }
+.vt-scope.is-removing-container {
+  animation: vt-slide-far-left 240ms ease both;
+}
 
 /* Short-travel slide: ~10% travel with noticeable fade */
-@keyframes vt-slide-in-left   { from { transform: translateX(10%);  opacity: 0.05; } to { transform: translateX(0); opacity: 1; } }
-@keyframes vt-slide-out-left  { from { transform: translateX(0);    opacity: 1; }   to { transform: translateX(-10%); opacity: 0.0; } }
-@keyframes vt-slide-in-right  { from { transform: translateX(-10%); opacity: 0.05;} to { transform: translateX(0); opacity: 1; } }
-@keyframes vt-slide-out-right { from { transform: translateX(0);    opacity: 1; }   to { transform: translateX(10%);  opacity: 0.0; } }
-@keyframes vt-slide-far-left  { from { transform: translateX(-100%); opacity: 1;} to { transform: translateX(-200%); opacity: 0; } }
+@keyframes vt-slide-in-left {
+  from {
+    transform: translateX(10%);
+    opacity: 0.05;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes vt-slide-out-left {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-10%);
+    opacity: 0;
+  }
+}
+@keyframes vt-slide-in-right {
+  from {
+    transform: translateX(-10%);
+    opacity: 0.05;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes vt-slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(10%);
+    opacity: 0;
+  }
+}
+@keyframes vt-slide-far-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-200%);
+    opacity: 0;
+  }
+}
 
 /* Slideshow (full viewport travel, no fade) */
-@keyframes vt-ss-in-left   { from { transform: translateX(100%); } to { transform: translateX(0); } }
-@keyframes vt-ss-out-left  { from { transform: translateX(0); }   to { transform: translateX(-100%); } }
-@keyframes vt-ss-in-right  { from { transform: translateX(-100%);} to { transform: translateX(0); } }
-@keyframes vt-ss-out-right { from { transform: translateX(0); }   to { transform: translateX(100%); } }
+@keyframes vt-ss-in-left {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes vt-ss-out-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes vt-ss-in-right {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes vt-ss-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
 
 /* --------------------------------------- */
 /* Circle reveal (center origin for now)   */
@@ -75,26 +186,38 @@
   /* Ensure fully clipped at first frame to prevent blink */
   clip-path: circle(0% at 50% 50%);
   /* Start fully clipped; animation reveals to full */
-  animation: vt-circle-in-center var(--vt-duration, 320ms) cubic-bezier(0.5, 0, 0.15, 1) both;
+  animation: vt-circle-in-center var(--vt-duration, 320ms)
+    cubic-bezier(0.5, 0, 0.15, 1) both;
 }
 
 @keyframes vt-circle-in-center {
-  from { clip-path: circle(0% at 50% 50%); }
-  to   { clip-path: circle(150% at 50% 50%); }
+  from {
+    clip-path: circle(0% at 50% 50%);
+  }
+  to {
+    clip-path: circle(150% at 50% 50%);
+  }
 }
 
 /* --------------------------------------- */
 /* Gradient wipe (exact SWUP implementation) */
 /* --------------------------------------- */
 [data-vt-changing][data-vt-mode="gradient"] > .vt-scope {
-  transition: mask-position var(--vt-duration, 1000ms) cubic-bezier(0.5, 0, 0.15, 1), -webkit-mask-position var(--vt-duration, 1000ms) cubic-bezier(0.5, 0, 0.15, 1);
+  transition:
+    mask-position var(--vt-duration, 1000ms) cubic-bezier(0.5, 0, 0.15, 1),
+    -webkit-mask-position var(--vt-duration, 1000ms)
+      cubic-bezier(0.5, 0, 0.15, 1);
 }
 
 [data-vt-mode="gradient"] .vt-scope {
   mask-image: linear-gradient(to left, transparent 33.33%, white 66.66%);
   mask-size: 300% 100%;
   mask-position: 0%;
-  -webkit-mask-image: linear-gradient(to left, transparent 33.33%, white 66.66%);
+  -webkit-mask-image: linear-gradient(
+    to left,
+    transparent 33.33%,
+    white 66.66%
+  );
   -webkit-mask-size: 300% 100%;
   -webkit-mask-position: 0%;
 }
@@ -114,9 +237,18 @@
   animation: vt-fade-out var(--vt-duration, 240ms) ease both;
 }
 
-@keyframes vt-fade-out { from { opacity: 1; } to { opacity: 0.001; } }
-
+@keyframes vt-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.001;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .vt-scope { animation: none !important; transition: none !important; }
+  .vt-scope {
+    animation: none !important;
+    transition: none !important;
+  }
 }

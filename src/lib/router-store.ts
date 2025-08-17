@@ -13,10 +13,25 @@ export type RouterTransitions = {
 export type RouterStore = StoreMachine<RouterState, RouterTransitions>;
 
 export function createRouterStore(): RouterStore {
-  return createStoreMachine<RouterState, RouterTransitions>({ path: "" }, {
-    push: (path: string) => ({ from }) => (from.path === path ? (undefined as any) : { path }),
-    replace: (path: string) => ({ from }) => (from.path === path ? (undefined as any) : { path }),
-    redirect: (path: string) => ({ from }) => (from.path === path ? (undefined as any) : { path }),
-    pop: (path: string) => ({ from }) => (from.path === path ? (undefined as any) : { path }),
-  });
+  return createStoreMachine<RouterState, RouterTransitions>(
+    { path: "" },
+    {
+      push:
+        (path: string) =>
+        ({ from }) =>
+          from.path === path ? { path: from.path } : { path },
+      replace:
+        (path: string) =>
+        ({ from }) =>
+          from.path === path ? { path: from.path } : { path },
+      redirect:
+        (path: string) =>
+        ({ from }) =>
+          from.path === path ? { path: from.path } : { path },
+      pop:
+        (path: string) =>
+        ({ from }) =>
+          from.path === path ? { path: from.path } : { path },
+    }
+  );
 }

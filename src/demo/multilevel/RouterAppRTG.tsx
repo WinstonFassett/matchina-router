@@ -1,14 +1,24 @@
 import React from "react";
-import { RouterProvider, Routes, Route, Link } from "./router";
-import { RTGViewer, DebugVisProvider, AnimModeProvider } from "./viewers";
+import { ViewerProvider } from "../../lib/route-viewer";
+import {
+  DEFAULT_TRANSITION_DURATION,
+  DEFAULT_TRANSITION_MODE,
+} from "../config";
+import { DebugVisProvider } from "./DebugVisContext";
+import { Link, RouterProvider, Routes } from "./router";
+import { About, DebugPanel, Home, Products, User } from "./RouterAppScreens";
+import { RTGViewer } from "./RTGViewer";
 import "./transitions.css";
-import { DEFAULT_TRANSITION_DURATION, DEFAULT_TRANSITION_MODE } from "../config";
-import { Home, About, Products, Product, ProductOverview, ProductSpecs, ProductReviews, User, DebugPanel } from "./RouterAppScreens";
+import { AnimModeProvider } from "./useAnimMode";
 
 export const RouterAppRTG: React.FC = () => {
   const [debugVis, setDebugVis] = React.useState(false);
-  const [mode, setMode] = React.useState<'slideshow' | 'slide' | 'circle' | 'gradient'>(DEFAULT_TRANSITION_MODE);
-  const [durationSec, setDurationSec] = React.useState<number>(DEFAULT_TRANSITION_DURATION);
+  const [mode, setMode] = React.useState<
+    "slideshow" | "slide" | "circle" | "gradient"
+  >(DEFAULT_TRANSITION_MODE);
+  const [durationSec, setDurationSec] = React.useState<number>(
+    DEFAULT_TRANSITION_DURATION
+  );
   const durationMs = Math.max(0, Math.round(durationSec * 1000));
   return (
     <RouterProvider>
@@ -24,7 +34,7 @@ export const RouterAppRTG: React.FC = () => {
               onClick={() => setDebugVis((v) => !v)}
               aria-pressed={debugVis}
             >
-              {debugVis ? 'Disable Debug' : 'Enable Debug'}
+              {debugVis ? "Disable Debug" : "Enable Debug"}
             </button>
           </div>
           {/* Controls: transition mode + duration */}
@@ -51,7 +61,9 @@ export const RouterAppRTG: React.FC = () => {
                 min="0"
                 className="w-24 rounded border border-black/10 dark:border-white/10 bg-white dark:bg-neutral-900 px-2 py-1 text-sm"
                 value={durationSec}
-                onChange={(e) => setDurationSec(parseFloat(e.target.value) || 0)}
+                onChange={(e) =>
+                  setDurationSec(parseFloat(e.target.value) || 0)
+                }
               />
             </label>
           </div>
@@ -61,28 +73,34 @@ export const RouterAppRTG: React.FC = () => {
                 <Link name="Home">Home</Link>
                 <Link name="About">About</Link>
                 <Link name="Products">Products</Link>
-                <Link name="ProductOverview" params={{ id: "42" }}>Product 42</Link>
-                <Link name="User" params={{ userId: "winston" }}>User winston</Link>
+                <Link name="ProductOverview" params={{ id: "42" }}>
+                  Product 42
+                </Link>
+                <Link name="User" params={{ userId: "winston" }}>
+                  User winston
+                </Link>
               </nav>
             </div>
             <div>
               <div className="p-4">
                 <AnimModeProvider value={{ forward: mode, back: mode }}>
-                  <Routes
-                    viewer={RTGViewer}
-                    keep={1}
-                    views={{
-                      Home,
-                      About,
-                      Products,
-                      User,
-                      // Ensure site-level shell shows when inside product routes
-                      Product: Products,
-                      ProductOverview: Products,
-                      ProductSpecs: Products,
-                      ProductReviews: Products,
-                    }}
-                  />
+                  <ViewerProvider value={RTGViewer}>
+                    <Routes
+                      viewer={RTGViewer}
+                      keep={1}
+                      views={{
+                        Home,
+                        About,
+                        Products,
+                        User,
+                        // Ensure site-level shell shows when inside product routes
+                        Product: Products,
+                        ProductOverview: Products,
+                        ProductSpecs: Products,
+                        ProductReviews: Products,
+                      }}
+                    />
+                  </ViewerProvider>
                 </AnimModeProvider>
               </div>
             </div>

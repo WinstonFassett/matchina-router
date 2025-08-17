@@ -13,16 +13,19 @@ export const {
   store,
   history,
   routes: routeDefs,
-} = createRouter({
-  Home: "/",
-  About: "/about",
-  Products: "/products",
-  Product: "/products/:id",
-  ProductOverview: "/products/:id/overview",
-  ProductSpecs: "/products/:id/specs",
-  ProductReviews: "/products/:id/reviews",
-  Users: "/users",
-  User: "/users/:userId",
-}, {
-  useHash: true,
-});
+} = createRouter(
+  {
+    Home: "/",
+    About: "/about",
+    Products: "/products",
+    Product: "/products/:id",
+    ProductOverview: "/products/:id/overview",
+    ProductSpecs: "/products/:id/specs",
+    ProductReviews: "/products/:id/reviews",
+    Users: "/users",
+    User: "/users/:userId",
+  },
+  {
+    useHash: true,
+  }
+);
