@@ -13,9 +13,10 @@ export const { RouterProvider, Link, useRouter, Routes, Route } = createRouter(
 
 export function getDepth(key?: string | null): number {
   if (!key) return 0;
-  if (/CharacterView$/i.test(key)) return 2;
-  if (/(CharactersView|EpisodesView)$/i.test(key)) return 1;
-  if (/(TopView|Home)$/i.test(key)) return 0;
+  // Keys come from route names (optionally with ":id=..." suffix)
+  if (/^CharacterDetail(\b|:)/i.test(key)) return 2;
+  if (/^(Characters|Episodes)(\b|:)/i.test(key)) return 1;
+  if (/^Home(\b|:)/i.test(key)) return 0;
   return 0;
 }
 
