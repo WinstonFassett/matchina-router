@@ -242,42 +242,24 @@ export function createRouter<const Patterns extends Record<string, string>>(
           )
         : null;
 
-    // Compute current view identity at this level (component id)
+    // Compute current view identity at this level using stable route info
+    // Use route name (and optional param id) so production minification of component names
+    // does not break identity and animations.
     const currScopeKey = React.useMemo(() => {
-      if (!inScope || !to || !views) return null;
-      const view = views[to.name as any] as
-        | React.ComponentType<any>
-        | undefined;
-      if (!view) return null;
-      const viewId =
-        (view as any).displayName || (view as any).name || "AnonymousView";
-      try {
-        const id = (to as any)?.params?.id;
-        if (viewId === "Product" && (id ?? "") !== "")
-          return `${viewId}:id=${String(id)}` as string;
-      } catch {
-        /* ignore */
-      }
-      return viewId as string;
-    }, [inScope, to, views]);
+      if (!inScope || !to) return null;
+      const name = (to as any)?.name as string | undefined;
+      if (!name) return null;
+      const id = (to as any)?.params?.id;
+      return id != null && String(id) !== "" ? `${name}:id=${String(id)}` : name;
+    }, [inScope, to]);
     // Compute previous view identity at this level synchronously from `from` route
     const prevScopeKeyFromRoute = React.useMemo(() => {
-      if (!from || !views) return null;
-      const view = views[from.name as any] as
-        | React.ComponentType<any>
-        | undefined;
-      if (!view) return null;
-      const viewId =
-        (view as any).displayName || (view as any).name || "AnonymousView";
-      try {
-        const id = (from as any)?.params?.id;
-        if (viewId === "Product" && (id ?? "") !== "")
-          return `${viewId}:id=${String(id)}` as string;
-      } catch {
-        /* ignore */
-      }
-      return viewId as string;
-    }, [from, views]);
+      if (!from) return null;
+      const name = (from as any)?.name as string | undefined;
+      if (!name) return null;
+      const id = (from as any)?.params?.id;
+      return id != null && String(id) !== "" ? `${name}:id=${String(id)}` : name;
+    }, [from]);
     const scopeChanged = React.useMemo(() => {
       return Boolean(
         currScopeKey &&
