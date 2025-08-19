@@ -19,19 +19,19 @@ export function createRouterStore(): RouterStore {
       push:
         (path: string) =>
         ({ from }) =>
-          from.path === path ? { path: from.path } : { path },
+          from.path === path ? (undefined as any) : { path },
       replace:
         (path: string) =>
         ({ from }) =>
-          from.path === path ? { path: from.path } : { path },
+          from.path === path ? (undefined as any) : { path },
       redirect:
         (path: string) =>
         ({ from }) =>
-          from.path === path ? { path: from.path } : { path },
+          from.path === path ? (undefined as any) : { path },
       pop:
         (path: string) =>
         ({ from }) =>
-          from.path === path ? { path: from.path } : { path },
+          from.path === path ? (undefined as any) : { path },
     }
   );
 }
